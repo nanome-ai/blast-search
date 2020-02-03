@@ -1,15 +1,10 @@
 import nanome
 from nanome.util import Logs
-
+from .similaritysearch_menu import SimilaritySearchMenu
 class SimilaritySearch(nanome.PluginInstance):
     def start(self):
-        menu = self.menu
-        menu.title = 'Similarity Search'
-        menu.width = 1
-        menu.height = 1
-
-        node = menu.root.create_child_node()
-        node.add_new_label('hello, nanome!')
+        self._menu = SimilaritySearchMenu(self)
+        self._menu.build_menu()
 
     def on_run(self):
         self.menu.enabled = True
