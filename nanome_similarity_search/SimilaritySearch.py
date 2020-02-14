@@ -1,11 +1,17 @@
 import nanome
 from nanome.util import Logs
 from .similaritysearch_menu import SimilaritySearchMenu
+# from .Bio.Blast import NCBIWWW
+# from .Bio.Blast import NCBIXML
+from Bio.Blast import NCBIWWW
+ from Bio.Blast import NCBIXML
+ 
 class SimilaritySearch(nanome.PluginInstance):
     def start(self):
         self._menu = SimilaritySearchMenu(self)
         self._menu.build_menu()
         nanome.util.Logs.debug("similarity search plugin started")
+        self.search_blast()
 
     def on_run(self):
         self.menu.enabled = True
@@ -28,7 +34,14 @@ class SimilaritySearch(nanome.PluginInstance):
     def on_complex_list_received(self, complexes):
         Logs.debug("complex received: ", complexes)
         self._menu.change_complex_list(complexes)
-    
+
+    def search_blast(self):
+        Logs.debug("blast search test started")
+        result_handle = NCBIWWW.qblast("blastn", "nt", "8332116")
+        with open(os.path.join(os.path.dirname(__file__),"my_blast.xml"), "w") as out_handle:
+            out_handle.write(result_handle.read())
+        result_handle.close()
+        Logs.debug("blast XML file written")
 
 def main():
     plugin = nanome.Plugin('Similarity Search', 'A Nanome plugin to do similarity search using BLAST', 'other', False)
