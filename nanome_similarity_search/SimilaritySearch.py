@@ -1,17 +1,17 @@
 import nanome
+import os
 from nanome.util import Logs
 from .similaritysearch_menu import SimilaritySearchMenu
-# from .Bio.Blast import NCBIWWW
-# from .Bio.Blast import NCBIXML
 from Bio.Blast import NCBIWWW
- from Bio.Blast import NCBIXML
+from Bio.Blast import NCBIXML
  
 class SimilaritySearch(nanome.PluginInstance):
     def start(self):
         self._menu = SimilaritySearchMenu(self)
         self._menu.build_menu()
         nanome.util.Logs.debug("similarity search plugin started")
-        self.search_blast()
+        self.number_of_results = 3
+        self.result_list = []
 
     def on_run(self):
         self.menu.enabled = True
@@ -38,10 +38,33 @@ class SimilaritySearch(nanome.PluginInstance):
     def search_blast(self):
         Logs.debug("blast search test started")
         result_handle = NCBIWWW.qblast("blastn", "nt", "8332116")
-        with open(os.path.join(os.path.dirname(__file__),"my_blast.xml"), "w") as out_handle:
-            out_handle.write(result_handle.read())
-        result_handle.close()
-        Logs.debug("blast XML file written")
+        # with open(os.path.join(os.path.dirname(__file__),"my_blast.xml"), "w") as out_handle:
+        #     out_handle.write(result_handle.read())
+        # result_handle.close()
+        # Logs.debug("blast XML file written")
+        Logs.debug("qblast ended")
+        for x in range(self.number_of_results):
+            if x == 0:
+                try:
+                    blast_record = NCBIXML.read(result_handle)
+                    self.result_list.append(blast_record)
+                    Logs.debug("blast result #1: ",blast_record)
+                except:
+                    Logs.debug("No result found")
+                    break
+            else:
+                try:
+                    blast_record = next(blast_records)
+                    self.result_list.append(blast_record)
+                    Logs.debug("blast result #",x+1," ",blast_record)
+                except:
+                    Logs.debug("No more results")
+                    break
+                
+        self.update_result()
+
+    def update_result(self):
+        self.menu.update_result(self.result_list)
 
 def main():
     plugin = nanome.Plugin('Similarity Search', 'A Nanome plugin to do similarity search using BLAST', 'other', False)
