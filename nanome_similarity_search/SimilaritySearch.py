@@ -10,7 +10,7 @@ class SimilaritySearch(nanome.PluginInstance):
         self._menu = SimilaritySearchMenu(self)
         self._menu.build_menu()
         nanome.util.Logs.debug("similarity search plugin started")
-        self.number_of_results = 3
+        self.number_of_results = 10
         self.result_list = []
 
     def on_run(self):
@@ -37,7 +37,11 @@ class SimilaritySearch(nanome.PluginInstance):
 
     def search_blast(self):
         Logs.debug("blast search test started")
-        result_handle = NCBIWWW.qblast("blastn", "nt", "8332116")
+        with open(os.path.join(os.path.dirname(__file__), "1tyl.fasta"),"r") as file:
+            fasta_string = file.read()
+        Logs.debug("the fasta string is: ",fasta_string)
+        result_handle = NCBIWWW.qblast("blastp", "nt", fasta_string)
+        # result_handle = NCBIWWW.qblast("blastn", "nt", "8332116")
         # with open(os.path.join(os.path.dirname(__file__),"my_blast.xml"), "w") as out_handle:
         #     out_handle.write(result_handle.read())
         # result_handle.close()
@@ -64,7 +68,7 @@ class SimilaritySearch(nanome.PluginInstance):
         self.update_result()
 
     def update_result(self):
-        self.menu.update_result(self.result_list)
+        self._menu.update_result(self.result_list)
 
 def main():
     plugin = nanome.Plugin('Similarity Search', 'A Nanome plugin to do similarity search using BLAST', 'other', False)
