@@ -26,15 +26,22 @@ class SimilaritySearchMenu():
         self.query_list = []
 
         def query_pressed(button):
-            self.selected_query = button.complex
-            button.selected = not button.selected
-            if button.selected:
-                self.selected_query = button.complex
+            if self.selected_query == None:
+                self.selected_query = button
+                button.selected = True
                 self.update_selected_label()
                 self.update_error_message(ErrorOptions.clear)
                 self.plugin.update_selected_query(button.complex)
+            elif self.selected_query != None and self.selected_query!=button:
+                self.selected_query.selected = False
+                self.plugin.update_content(self.selected_query)
+                button.selected = True
+                self.selected_query = button
+                self.update_selected_label()
+                self.plugin.update_selected_query(button.complex)
             else:
                 self.selected_query = None
+                button.selected = False
                 self.update_selected_label()
                 self.plugin.update_selected_query(None)
             self.plugin.update_content(button)
@@ -79,7 +86,7 @@ class SimilaritySearchMenu():
     
     def update_selected_label(self):
         if self.selected_query:
-            self.selected_label.text_value = "Selected input: "+ self.selected_query.full_name
+            self.selected_label.text_value = "Selected input: "+ self.selected_query.complex.full_name
         else:
             self.selected_label.text_value = "Selected input: "
         self.plugin.update_content(self.selected_label)
